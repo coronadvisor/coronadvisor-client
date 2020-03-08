@@ -12,11 +12,17 @@ require([
 
     var predictedCase = new FeatureLayer({
         url:
-            "https://services7.arcgis.com/htMxRutgdEUv2XFB/arcgis/rest/services/confirmed_prediction/FeatureServer",
+            "https://services7.arcgis.com/htMxRutgdEUv2XFB/arcgis/rest/services/prediction_final/FeatureServer",
         outFields: ["*"],
         popupTemplate: {
-            title: "{lat}, {lng}",
-            content: "Confirmed: {Confirmed}"
+            title: "{Countries}",
+            content: `
+            Predicted Confirmed: {Confirmed}<br>
+
+            Predicted Recovered: {Recovered}<br>
+            
+            Predicted Death: {Death}<br>
+            `
         },
         timeInfo: {
             interval: {

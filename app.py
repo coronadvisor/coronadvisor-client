@@ -9,6 +9,7 @@ import json
 import country_converter as coco
 import datetime
 import re
+import csv
 
 app = Flask(__name__)
 
@@ -75,8 +76,10 @@ def trip():
     display_date = d.strftime('%d %B %Y')
     query_date_start = d.strftime('%Y-%m-%d')
     query_date_end = dend.strftime('%Y-%m-%d')
+    query_local_date = d.strftime('%-m/%-d/%Y')
     print(query_date_start)
     print(query_date_end)
+    print(query_local_date)
 
     display_location = city + ", " + country
 
@@ -114,7 +117,21 @@ def trip():
     for k in threatNeighbors.keys():
         valueThreatNeighbors += k + " - Level " + str(threatNeighbors[k])
 
-    locPredicted = 1
+    confirmedCaseCount = 0
+
+    with open("data.csv") as file:
+        reader = csv.reader(file, delimiter=",")
+        next(reader)
+
+        for row in reader:
+            if row[9] == query_local_date and row[10].lower() == country.lower():
+                confirmedCaseCount = row[4]
+
+    print(confirmedCaseCount)
+
+    if int(confirmedCaseCount) > 25:
+        locPredicted = 1
+
     params = [locCDCThreat, neighborCDCThreat, locPredicted]
     if params[0] == 1:
         dangerScore += 999999
@@ -128,7 +145,7 @@ def trip():
     if dangerScore >= 2:
         dangerous = True
 
-    return render_template('trip.html', query_date_start=query_date_start, query_date_end=query_date_end, valueLocThreatLevel=valueLocThreatLevel, valueThreatNeighbors=valueThreatNeighbors, locCDCThreat=locCDCThreat, params=params, dangerous=dangerous, display_location=display_location, display_date=display_date, phoneValid=phoneValid)
+    return render_template('trip.html', confirmedCaseCount=confirmedCaseCount, query_date_start=query_date_start, query_date_end=query_date_end, valueLocThreatLevel=valueLocThreatLevel, valueThreatNeighbors=valueThreatNeighbors, locCDCThreat=locCDCThreat, params=params, dangerous=dangerous, display_location=display_location, display_date=display_date, phoneValid=phoneValid)
 
 
 if __name__ == "__main__":

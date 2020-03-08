@@ -303,8 +303,14 @@
                         class="row {% if params[2] == 1 %}false{% else %}true{% endif %} param-entry"
                     >
                         <div class="col">
-                            Location will have less than 10 predicted cases
-                            (based on our model)
+                            Location will have less than 25 predicted cases. {%
+                            if params[2] == 1%}
+                            <div class="explanation">
+                                We predict that there will be {{
+                                confirmedCaseCount }} confirmed cases at
+                                {{display_date}}.
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
