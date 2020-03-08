@@ -9,6 +9,10 @@ autopep8 = "*"
 
 [packages]
 flask = "*"
+geocoder = "*"
+countryinfo = "*"
+country-converter = "*"
+twilio = "*"
 
 [requires]
 python_version = "3.7"

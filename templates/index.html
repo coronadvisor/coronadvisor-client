@@ -42,7 +42,12 @@
                         that you and your travel companions will be safe from
                         harm.
                     </p>
-                    <form action="/trip" method="GET" id="trip-form">
+                    <form
+                        onsubmit="return formValidation()"
+                        action="/trip"
+                        method="GET"
+                        id="trip-form"
+                    >
                         <div class="row landing-row-search">
                             <div class="col-12 col-md-9">
                                 <div class="input-container">
@@ -63,6 +68,7 @@
                                                 class="form-control"
                                                 id="datepicker"
                                                 placeholder="03/28/2020"
+                                                readonly
                                             />
                                         </div>
                                     </div>
@@ -120,7 +126,17 @@
             type="text/javascript"
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAO6w-qOBMks8Prlcr4hXIf9QyHOua0BMw&libraries=places"
         ></script>
+        <script>
+            function formValidation() {
+                var loc = document.forms["trip-form"]["location"].value;
+                var date = document.forms["trip-form"]["date"].value;
 
+                if (loc == "" || date == "") {
+                    alert("Please fill all required field");
+                    return false;
+                }
+            }
+        </script>
         <script type="text/javascript">
             var options = {
                 types: ["(cities)"]
