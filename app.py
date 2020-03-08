@@ -72,10 +72,10 @@ def trip():
     neighbors = cinfo.borders()
 
     d = datetime.datetime.strptime(request.args['date'], "%m/%d/%Y")
-    dend = d + datetime.timedelta(days=1)
+    dstart = d - datetime.timedelta(days=1)
     display_date = d.strftime('%d %B %Y')
-    query_date_start = d.strftime('%Y-%m-%d')
-    query_date_end = dend.strftime('%Y-%m-%d')
+    query_date_start = dstart.strftime('%Y-%m-%d')
+    query_date_end = d.strftime('%Y-%m-%d')
     query_local_date = d.strftime('%-m/%-d/%Y')
     print(query_date_start)
     print(query_date_end)
@@ -124,7 +124,7 @@ def trip():
         next(reader)
 
         for row in reader:
-            if row[9] == query_local_date and row[10].lower() == country.lower():
+            if row[9] == query_local_date and coco.convert(names=[row[10]], to="name_short").lower() == country.lower():
                 confirmedCaseCount = row[4]
 
     print(confirmedCaseCount)
