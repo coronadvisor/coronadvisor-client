@@ -5,7 +5,6 @@ from twilio.rest import Client
 from cfg import TWILLIO_SID, TWILLIO_TOKEN, TWILLIO_PHONE_NUMBER, TWILLIO_WHITELISTED_NUMBER
 
 
-import geocoder
 import json
 import country_converter as coco
 import datetime
