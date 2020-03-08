@@ -21,7 +21,7 @@ require([
 
             Predicted Recovered: {Recovered}<br>
             
-            Predicted Death: {Death}<br>
+            Predicted Death: {Deaths}<br>
             `
         },
         timeInfo: {
