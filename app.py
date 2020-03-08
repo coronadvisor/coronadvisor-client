@@ -18,7 +18,7 @@ client = Client(TWILLIO_SID, TWILLIO_TOKEN)
 
 @app.route('/video-demo')
 def video_demo():
-    return redirect("http://google.com")
+    return redirect("https://www.loom.com/share/c5c73c2237284136902ecd43bb57063f")
 
 
 @app.route('/')
