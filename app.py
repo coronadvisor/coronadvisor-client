@@ -4,6 +4,7 @@ from countryinfo import CountryInfo
 from twilio.rest import Client
 from cfg import TWILLIO_SID, TWILLIO_TOKEN, TWILLIO_PHONE_NUMBER, TWILLIO_WHITELISTED_NUMBER
 
+
 import geocoder
 import json
 import country_converter as coco
@@ -36,8 +37,8 @@ def sms():
         You have been signed up to receive notifications about your travel destination.
         Location: {0}
         Date: {1}
-        
-        
+
+
         """.format(request.form['display_location'], request.form['display_date']))
     return redirect(request.referrer + "&phone=valid")
 
@@ -64,38 +65,53 @@ def trip():
 
     cinfo = CountryInfo(country)
     neighbors = cinfo.borders()
-    iso3_neighbors = coco.convert(names=neighbors, to="ISO3")
 
     d = datetime.datetime.strptime(request.args['date'], "%m/%d/%Y")
+    dend = d + datetime.timedelta(days=1)
     display_date = d.strftime('%d %B %Y')
+    query_date_start = d.strftime('%Y-%m-%d')
+    query_date_end = dend.strftime('%Y-%m-%d')
+    print(query_date_start)
+    print(query_date_end)
+
     display_location = city + ", " + country
 
     locCDCThreat = 0
     neighborCDCThreat = 0
-    threatNeighbors = []
+
     locPredicted = 0
-    neighborPredicted = 0
-    neighborPredictedList = {}
     dangerScore = 0
     dangerous = False
 
+    valueLocThreatLevel = 0
+    threatNeighbors = []
+
     with open("cdc-data.json") as file:
         data = json.load(file)
-        if iso3_country in data.keys():
+        if iso3_country in data.keys() and data[iso3_country] > 1:
             locCDCThreat = 1
+            valueLocThreatLevel = data[iso3_country]
 
         # get neighbors in threat list
-        threatNeighbors = [{k: v}
-                           for k, v in data.items() if k in neighbors]
+        threatNeighbors = {k: v
+                           for k, v in data.items() if k in neighbors and data[k] > 1}
 
         if len(threatNeighbors) > 0:
             print(threatNeighbors)
             neighborCDCThreat = 1
 
-    g = geocoder.google(request.args['location'])
+    for k in threatNeighbors.keys():
+        threatNeighbors[coco.convert(
+            names=k, to="name_short")] = threatNeighbors.pop(k)
+
+    print(threatNeighbors)
+    valueThreatNeighbors = ""
+
+    for k in threatNeighbors.keys():
+        valueThreatNeighbors += k + " - Level " + str(threatNeighbors[k])
+
     locPredicted = 1
-    neighborPredicted = 1
-    params = [locCDCThreat, neighborCDCThreat, locPredicted, neighborPredicted]
+    params = [locCDCThreat, neighborCDCThreat, locPredicted]
     if params[0] == 1:
         dangerScore += 999999
 
@@ -105,10 +121,7 @@ def trip():
     if params[2] == 1:
         dangerScore += 1
 
-    if params[3] == 1:
-        dangerScore += 1
-
-    if dangerScore >= 3:
+    if dangerScore >= 2:
         dangerous = True
 
-    return render_template('trip.html', params=params, dangerous=dangerous, display_location=display_location, display_date=display_date, phoneValid=phoneValid)
+    return render_template('trip.html', query_date_start=query_date_start, query_date_end=query_date_end, valueLocThreatLevel=valueLocThreatLevel, valueThreatNeighbors=valueThreatNeighbors, locCDCThreat=locCDCThreat, params=params, dangerous=dangerous, display_location=display_location, display_date=display_date, phoneValid=phoneValid)

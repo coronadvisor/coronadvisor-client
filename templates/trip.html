@@ -208,6 +208,10 @@
             }
         </script>
         <script>
+            window.queryDateEnd = "{{query_date_end}}";
+            window.queryDateStart = "{{query_date_start}}";
+        </script>
+        <script>
             function addIcon() {
                 var trues = document.getElementsByClassName("true");
                 var falses = document.getElementsByClassName("false");
@@ -228,7 +232,7 @@
             }
         </script>
 
-        <title>Hello, world!</title>
+        <title>Trip Information</title>
     </head>
     <body onload="addIcon()">
         <div class="container">
@@ -255,34 +259,66 @@
                         class="row {% if params[0] == 1 %}false{% else %}true{% endif %} param-entry"
                     >
                         <div class="col">
-                            Location is level 0 at CDC Travel Warning
+                            Destination's CDC Travel Health Notice level is
+                            below 1
+                            <br />
+
+                            {% if params[0] == 1%}
+                            <div class="explanation">
+                                The Centers for Disease Control and Prevention
+                                (CDC) rated {{display_location}} at Travel
+                                Health Notice Level {{valueLocThreatLevel}}.
+                                <br /><br />{% if valueLocThreatLevel == 1 %}
+                                The CDC recommends that travelers should
+                                practice usual precautions at the destination.
+                                {% elif valueLocThreatLevel == 2 %} The CDC
+                                recommends that older adults or those who have
+                                chronic medical conditions consider postponing
+                                travel to the destination. {% elif
+                                valueLocThreatLevel == 3 %} The CDC recommends
+                                that travelers avoid all nonessential travel to
+                                the destination. {% endif %}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div
                         class="row {% if params[1] == 1 %}false{% else %}true{% endif %} param-entry"
                     >
                         <div class="col">
-                            Land bordering countries are level 0 at CDC Travel
-                            Warning
+                            Destination's land bordering countries CDC Travel
+                            Health Notice level is below 1 {% if params[1] ==
+                            1%}
+                            <div class="explanation">
+                                The Centers for Disease Control and Prevention
+                                (CDC) rated some of the neighboring countries at
+                                Travel Health Notice Level above 1. <br />
+                                <br />
+                                {{valueThreatNeighbors}}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div
                         class="row {% if params[2] == 1 %}false{% else %}true{% endif %} param-entry"
                     >
-                        <div class="col ">
+                        <div class="col">
                             Location will have less than 10 predicted cases
                             (based on our model)
                         </div>
                     </div>
-                    <div
-                        class="row {% if params[3] == 1 %}false{% else %}true{% endif %} param-entry"
-                    >
-                        <div class="col ">
-                            Land bordering countries will have less than 10
-                            predicted cases (based on our model)
-                        </div>
-                    </div>
                 </div>
+            </div>
+
+            <div
+                class="row mt-5"
+                style="display: flex; justify-content: center; margin: 0; padding: 0;"
+            >
+                <a href="{{ url_for('index') }}"
+                    ><button type="button" class="btn btn-primary input-button">
+                        Search Another Trip
+                    </button></a
+                >
             </div>
 
             <h1 class="text-center however">However...</h1>
@@ -349,8 +385,7 @@
             </h5>
             {% else %}{% endif %}
             <h1 class="text-center spread">
-                Current vs Predicted<br />
-                Coronavirus Confirmed Cases
+                Predicted Coronavirus Spread
             </h1>
             <p class="trip-subtitle">
                 at {{ display_date }}

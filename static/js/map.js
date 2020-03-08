@@ -6,20 +6,36 @@ require([
     var map = new Map({
         basemap: "streets-night-vector"
     });
-    var lyr = new FeatureLayer({
+
+    console.log(window.queryDateStart);
+    console.log(window.queryDateEnd);
+
+    var predictedCase = new FeatureLayer({
         url:
-            "https://services7.arcgis.com/htMxRutgdEUv2XFB/arcgis/rest/services/currentcases/FeatureServer",
+            "https://services7.arcgis.com/htMxRutgdEUv2XFB/arcgis/rest/services/confirmed_prediction/FeatureServer",
         outFields: ["*"],
         popupTemplate: {
-            title: "{Province_State}, {Country_Region}",
+            title: "{lat}, {lng}",
             content: "Confirmed: {Confirmed}"
-        }
+        },
+        timeInfo: {
+            interval: {
+                // specify time interval for
+                unit: "days",
+                value: 1
+            }
+        },
+        definitionExpression: `Date BETWEEN timestamp '${window.queryDateStart} 07:00:00' AND timestamp '${window.queryDateEnd} 06:59:59'`,
+        useViewTime: false
     });
-    map.add(lyr);
+
+    console.log(predictedCase.timeInfo);
+    console.log(predictedCase.timeExtent);
+    map.add(predictedCase);
     var view = new MapView({
         container: "viewDiv",
         map: map,
         center: [-20, 35],
         zoom: 2
-    });
+    }); // create a new TimeSlider widget
 });
