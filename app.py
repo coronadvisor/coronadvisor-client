@@ -124,3 +124,7 @@ def trip():
         dangerous = True
 
     return render_template('trip.html', query_date_start=query_date_start, query_date_end=query_date_end, valueLocThreatLevel=valueLocThreatLevel, valueThreatNeighbors=valueThreatNeighbors, locCDCThreat=locCDCThreat, params=params, dangerous=dangerous, display_location=display_location, display_date=display_date, phoneValid=phoneValid)
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
