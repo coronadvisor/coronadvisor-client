@@ -15,6 +15,11 @@ app = Flask(__name__)
 client = Client(TWILLIO_SID, TWILLIO_TOKEN)
 
 
+@app.route('/video-demo')
+def video_demo():
+    return redirect("http://google.com")
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
