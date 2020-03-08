@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+
+        <!-- Bootstrap CSS -->
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous"
+        />
+        <link
+            href="https://fonts.googleapis.com/css?family=Muli:400,700&display=swap"
+            rel="stylesheet"
+        />
+
+        <link rel="stylesheet" href="./css/styles.css" />
+        <link
+            rel="stylesheet"
+            href="https://js.arcgis.com/4.14/esri/themes/dark/main.css"
+        />
+        <script defer src="https://js.arcgis.com/4.14/"></script>
+        <script
+            src="https://kit.fontawesome.com/98977d894b.js"
+            crossorigin="anonymous"
+        ></script>
+
+        <script>
+            function addIcon() {
+                var trues = document.getElementsByClassName("true");
+                var falses = document.getElementsByClassName("false");
+
+                Array.prototype.forEach.call(trues, function(el) {
+                    el.insertAdjacentHTML(
+                        "afterbegin",
+                        `<div class="col-auto pr-3"><i class="fas fa-check"></i></div>`
+                    );
+                });
+
+                Array.prototype.forEach.call(falses, function(el) {
+                    el.insertAdjacentHTML(
+                        "afterbegin",
+                        `<div class="col-auto pr-3"><i class="fas fa-times"></i></div>`
+                    );
+                });
+            }
+        </script>
+
+        <title>Hello, world!</title>
+    </head>
+    <body onload="addIcon()">
+        <div class="container">
+            <h1 class="text-center trip-title">
+                Your trip to Cancun, Mexico is ...
+            </h1>
+            <p class="trip-subtitle">
+                at 28 March 2020
+            </p>
+
+            <div class="status-box">
+                <div class="status-box-header">
+                    <i class="fas fa-check mr-3"></i>
+                    Relatively Safe
+                </div>
+                <hr />
+                <div class="status-box-body pl-md-5 mr-md-5 mt-5">
+                    <div class="row true param-entry">
+                        <div class="col">
+                            Location is level 0 at CDC Travel Warning
+                        </div>
+                    </div>
+                    <div class="row true  param-entry">
+                        <div class="col">
+                            Land bordering countries are level 0 at CDC Travel
+                            Warning
+                        </div>
+                    </div>
+                    <div class="row false param-entry">
+                        <div class="col ">
+                            Location has less than 10 predicted cases (based on
+                            our model)
+                        </div>
+                    </div>
+                    <div class="row false param-entry">
+                        <div class="col ">
+                            Land bordering countries have less than 10 predicted
+                            cases (based on our model)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h1 class="text-center however">However...</h1>
+            <p class="text-center however-subtext">
+                Disease spread is highly unpredictable and the condition can
+                change drastically as more data are getting discovered.
+                <br /><br />
+                <strong
+                    >Sign up for CoronaWatch alerts for the latest update on
+                    your travel location.</strong
+                >
+            </p>
+
+            <div class="row trip-row-phone">
+                <div class="col-12 phone-container">
+                    <div class="input-container">
+                        <div class="row">
+                            <div class="col">
+                                <input
+                                    id="searchTextField"
+                                    type="text"
+                                    class="form-control phone"
+                                    placeholder="(925) 125-3456"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-auto mt-3 mt-md-0">
+                    <button type="button" class="btn btn-primary input-button">
+                        Get Alert
+                    </button>
+                </div>
+            </div>
+
+            <h1 class="text-center spread">
+                Current vs Predicted<br />
+                Coronavirus Confirmed Cases
+            </h1>
+            <p class="trip-subtitle">
+                at 28 March 2020
+            </p>
+            <div class="row viewDiv" id="viewDiv"></div>
+        </div>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script defer src="./js/map.js"></script>
+        <script
+            src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAO6w-qOBMks8Prlcr4hXIf9QyHOua0BMw&libraries=places"
+        ></script>
+
+        <script type="text/javascript">
+            var options = {
+                types: ["(cities)"]
+            };
+            function initialize() {
+                var input = document.getElementById("searchTextField");
+                var autocomplete = new google.maps.places.Autocomplete(
+                    input,
+                    options
+                );
+            }
+            google.maps.event.addDomListener(window, "load", initialize);
+        </script>
+    </body>
+</html>

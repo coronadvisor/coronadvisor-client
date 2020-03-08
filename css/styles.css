@@ -23,9 +23,88 @@ h1 {
     margin-top: 50px;
 }
 
+.trip-row-phone {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+}
+
 .landing-cta-col {
     padding-left: 50px;
 }
+
+.trip-title {
+    margin-top: 100px;
+}
+
+.trip-subtitle {
+    text-align: center;
+    font-size: 20px;
+    color: #b2b2b2;
+}
+
+.status-box {
+    margin-top: 50px;
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.04), 0 2px 6px 0 rgba(0, 0, 0, 0.04),
+        0 16px 24px 0 rgba(0, 0, 0, 0.06);
+    border: solid 1px #ececec;
+    background-color: #ffffff;
+}
+
+.status-box-header {
+    font-size: 24px;
+    text-align: center;
+}
+
+.status-box-header .fas {
+    font-size: 30px;
+    color: #7ce298;
+}
+
+.status-box-body {
+    padding-bottom: 20px;
+}
+
+.status-box-body .col-auto {
+    width: 25px;
+}
+
+.status-box-body .row,
+.status-box-body .col,
+.status-box-body .col-auto {
+    margin: 0px;
+    padding: 0px;
+}
+
+.however {
+    margin-top: 70px;
+}
+
+.however-subtext {
+    margin-top: 25px;
+    font-size: 18px;
+    line-height: 1.89;
+}
+
+.param-entry {
+    font-size: 18px;
+    margin-bottom: 13px !important;
+}
+
+.true {
+    color: #7ce298;
+}
+
+.false {
+    color: #fa8181;
+}
+
+.spread {
+    margin-top: 140px;
+}
+
 .input-container {
     color: #cecece;
     border-radius: 5px;
@@ -50,6 +129,27 @@ h1 {
 .input-container input::placeholder {
     text-align: center;
     color: #cecece;
+}
+
+@media only screen and (max-width: 768px) {
+    .phone-container {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+@media only screen and (min-width: 768px) {
+    .phone-container {
+        width: 100% !important;
+        max-width: 480px !important;
+    }
+}
+
+.phone {
+    text-align: left !important;
+}
+
+.phone::placeholder {
+    text-align: left !important;
 }
 
 .input-container button {
@@ -93,4 +193,15 @@ h1 {
 .hero-img {
     height: 300px;
     max-width: 100%;
+}
+
+.viewDiv {
+    height: 700px;
+    width: 100%;
+    margin-top: 85px !important;
+    margin-bottom: 85px !important;
+    background: black;
+    border-radius: 25px;
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.04), 0 4px 8px 0 rgba(0, 0, 0, 0.04),
+        0 16px 24px 0 rgba(0, 0, 0, 0.04), 0 24px 32px 0 rgba(0, 0, 0, 0.04);
 }
