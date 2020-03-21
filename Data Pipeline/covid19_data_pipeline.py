@@ -9,7 +9,6 @@ import bs4
 import datetime
 from bs4 import SoupStrainer
 import pandas as pd
-import numpy as np
 import re
 import requests
 
@@ -251,8 +250,29 @@ china_df['Date'] = china_df['Date'].dt.date
 
 ##### PART 5: #####
 
-# Download spain.csv from COVID-19 GitHub and clean data
+'''Credit to https://github.com/open-covid-19 for scraping Spain data from MSCBS'''
 
+# Download spain.csv from COVID-19 GitHub and clean data
+url = 'https://raw.githubusercontent.com/open-covid-19/data/master/output/es.csv'
+spain_df = pd.read_csv(url)
+del spain_df['RegionCode']
+
+# Add in a column for days since 12/31/2019
+basedate = pd.to_datetime('2019-12-31')
+spain_df['Date'] = pd.to_datetime(spain_df['Date'])
+spain_df['Days Since 2019-12-31'] = spain_df['Date'] - basedate
+spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].fillna(0).astype(str)
+spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].str.extract('(\d+)').astype(int) 
+
+# Remove the time from the Date column, keeping only the date
+spain_df['Date'] = spain_df['Date'].dt.date
+
+# Rename RegionName column to Region
+spain_df.rename(columns={'RegionName': 'Region'}, inplace=True)
+
+# Sort dataset by date
+spain_df = spain_df.sort_values(['Date', 'CountryCode'])
+spain_df = spain_df[['Date', 'Days Since 2019-12-31', 'CountryCode', 'CountryName', 'Region', 'Confirmed', 'Deaths', 'Latitude', 'Longitude']]
 
 
 
@@ -266,7 +286,7 @@ You will simply be adding the latest days data to the complete_df, then writing 
 # =============================================================================
 # # Combine all data into one dataframe 
 # complete_df = pd.DataFrame
-# complete_df = pd.concat([us_df, china_df, world_df], ignore_index=True)
+# complete_df = pd.concat([us_df, china_df, world_df, spain_df], ignore_index=True)
 # 
 # # Sort dataset by date
 # complete_df = complete_df.sort_values(['Date', 'CountryCode'])
@@ -278,6 +298,7 @@ You will simply be adding the latest days data to the complete_df, then writing 
 # complete_df.to_csv('Output_Data/complete_df.csv', index=False)
 # complete_df.to_json('Output_Data/complete_df.json', orient='records')
 # =============================================================================
+
 
 
 ##### PART 7: #####
@@ -299,7 +320,12 @@ china_df_latest = pd.DataFrame(columns=list(china_df.columns))
 for region in sorted(china_df['Region'].unique()):
     china_df_latest = pd.concat([china_df_latest, china_df[china_df['Region'] == region].iloc[-1:]])
     
-# Add latest data to current data
+# Extract a subset with only the most recent data from spain_df
+spain_df_latest = pd.DataFrame(columns=list(spain_df.columns))
+for country in spain_df['Region'].unique():
+    spain_df_latest = pd.concat([spain_df_latest, spain_df[spain_df['Region'] == country].iloc[-1:]])    
+    
+# Import yesterday's data
 old_df = pd.read_csv('Output_Data/complete_df.csv')
 
 # Change format of date column in odl_df to match date format in new_df
@@ -307,7 +333,7 @@ old_df['Date'] = pd.to_datetime(old_df['Date'])
 old_df['Date'] = old_df['Date'].dt.date
 
 # Create updated dataframe
-new_df = pd.concat([old_df, us_df_latest, china_df_latest, world_df_latest], ignore_index=True)
+new_df = pd.concat([old_df, us_df_latest, china_df_latest, world_df_latest, spain_df_latest], ignore_index=True)
 
 # Delete duplicate rows
 new_df = new_df.drop_duplicates(subset = None, keep = False)
