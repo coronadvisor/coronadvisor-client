@@ -128,7 +128,7 @@ world_df['Confirmed'] = world_df['Confirmed'].fillna(value)
 # Read JSON file from covidtracking's website
 # We must use the requests package directly because covidtracking returns 403 otherwise
 us_df = pd.read_json(requests.get(
-    'http://covidtracking.com/api/states/daily', headers={'User-agent': 'Mozilla/5.0'}).text)
+    'https://covidtracking.com/api/states/daily', headers={'User-agent': 'Mozilla/5.0'}).text)
 
 
 # Rename the appropriate columns
@@ -250,31 +250,33 @@ china_df['Date'] = china_df['Date'].dt.date
 
 ##### PART 5: #####
 
-'''Credit to https://github.com/open-covid-19 for scraping Spain data from MSCBS'''
-
-# Download spain.csv from COVID-19 GitHub and clean data
-url = 'https://raw.githubusercontent.com/open-covid-19/data/master/output/es.csv'
-spain_df = pd.read_csv(url)
-del spain_df['RegionCode']
-
-# Add in a column for days since 12/31/2019
-basedate = pd.to_datetime('2019-12-31')
-spain_df['Date'] = pd.to_datetime(spain_df['Date'])
-spain_df['Days Since 2019-12-31'] = spain_df['Date'] - basedate
-spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].fillna(0).astype(str)
-spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].str.extract('(\d+)').astype(int) 
-
-# Remove the time from the Date column, keeping only the date
-spain_df['Date'] = spain_df['Date'].dt.date
-
-# Rename RegionName column to Region
-spain_df.rename(columns={'RegionName': 'Region'}, inplace=True)
-
-# Sort dataset by date
-spain_df = spain_df.sort_values(['Date', 'CountryCode'])
-spain_df = spain_df[['Date', 'Days Since 2019-12-31', 'CountryCode', 'CountryName', 'Region', 'Confirmed', 'Deaths', 'Latitude', 'Longitude']]
-
-
+# =============================================================================
+# '''Credit to https://github.com/open-covid-19 for scraping Spain data from MSCBS'''
+# 
+# # Download spain.csv from COVID-19 GitHub and clean data
+# url = 'https://raw.githubusercontent.com/open-covid-19/data/master/output/es.csv'
+# spain_df = pd.read_csv(url)
+# del spain_df['RegionCode']
+# 
+# # Add in a column for days since 12/31/2019
+# basedate = pd.to_datetime('2019-12-31')
+# spain_df['Date'] = pd.to_datetime(spain_df['Date'])
+# spain_df['Days Since 2019-12-31'] = spain_df['Date'] - basedate
+# spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].fillna(0).astype(str)
+# spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].str.extract('(\d+)').astype(int) 
+# 
+# # Remove the time from the Date column, keeping only the date
+# spain_df['Date'] = spain_df['Date'].dt.date
+# 
+# # Rename RegionName column to Region
+# spain_df.rename(columns={'RegionName': 'Region'}, inplace=True)
+# 
+# # Sort dataset by date
+# spain_df = spain_df.sort_values(['Date', 'CountryCode'])
+# spain_df = spain_df[['Date', 'Days Since 2019-12-31', 'CountryCode', 'CountryName', 'Region', 'Confirmed', 'Deaths', 'Latitude', 'Longitude']]
+# 
+# 
+# =============================================================================
 
 ##### PART 6: #####
 '''
@@ -320,10 +322,12 @@ china_df_latest = pd.DataFrame(columns=list(china_df.columns))
 for region in sorted(china_df['Region'].unique()):
     china_df_latest = pd.concat([china_df_latest, china_df[china_df['Region'] == region].iloc[-1:]])
     
-# Extract a subset with only the most recent data from spain_df
-spain_df_latest = pd.DataFrame(columns=list(spain_df.columns))
-for country in spain_df['Region'].unique():
-    spain_df_latest = pd.concat([spain_df_latest, spain_df[spain_df['Region'] == country].iloc[-1:]])    
+# =============================================================================
+# # Extract a subset with only the most recent data from spain_df
+# spain_df_latest = pd.DataFrame(columns=list(spain_df.columns))
+# for country in spain_df['Region'].unique():
+#     spain_df_latest = pd.concat([spain_df_latest, spain_df[spain_df['Region'] == country].iloc[-1:]])    
+# =============================================================================
     
 # Import yesterday's data
 old_df = pd.read_csv('Output_Data/complete_df.csv')
@@ -333,7 +337,9 @@ old_df['Date'] = pd.to_datetime(old_df['Date'])
 old_df['Date'] = old_df['Date'].dt.date
 
 # Create updated dataframe
-new_df = pd.concat([old_df, us_df_latest, china_df_latest, world_df_latest, spain_df_latest], ignore_index=True)
+
+'''Add spain_df_latest if github back online'''
+new_df = pd.concat([old_df, us_df_latest, china_df_latest, world_df_latest], ignore_index=True)
 
 # Delete duplicate rows
 new_df = new_df.drop_duplicates(subset = None, keep = False)
@@ -346,7 +352,7 @@ new_df.to_json('Output_Data/complete_df.json', orient='records')
 
 # =============================================================================
 # # Save most recent day's dataset in CSV and JSON format into output folder (OPTIONAL)
-# latest_df = pd.concat([us_df_latest, china_df_latest, world_df_latest], ignore_index=True)
+# latest_df = pd.concat([us_df_latest, china_df_latest, world_df_latest, spain_df_latest], ignore_index=True)
 # latest_df.to_csv('latest_data.csv', index=False)
 # latest_df.to_json('latest_data.json', orient='records')
 # =============================================================================
