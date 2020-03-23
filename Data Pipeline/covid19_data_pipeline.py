@@ -1,7 +1,5 @@
 ##### PART 1: #####
 
-'''Credit https://github.com/open-covid-19 for providing framework for live data collection and reliable COVID19-reporting websites'''
-
 # Crawling ECDC for global cases, excluding US and China
 
 import httplib2
@@ -107,15 +105,16 @@ world_df = world_df[world_df.CountryName != 'China']
 world_df = world_df[world_df.CountryName != 'United States of America']
 world_df = world_df[world_df.CountryName != 'Spain']
 
+# Replace nan values with 0
+value = 0
+world_df['Deaths'] = world_df['Deaths'].fillna(value)
+world_df['Confirmed'] = world_df['Confirmed'].fillna(value)
 
 # Sort dataset by date
 world_df = world_df.sort_values(['Date', 'CountryCode'])
 world_df = world_df[['Date', 'Days Since 2019-12-31', 'CountryCode', 'CountryName', 'Region', 'Confirmed', 'Deaths', 'Latitude', 'Longitude']]
 
-# Replace nan values with 0
-value = 0
-world_df['Deaths'] = world_df['Deaths'].fillna(value)
-world_df['Confirmed'] = world_df['Confirmed'].fillna(value)
+
 
 
 
@@ -168,7 +167,6 @@ us_df = us_df.merge(pd.read_csv('Helper_Data/usa_regions.csv'))
 us_df['CountryName'] = 'United States of America'
 
 # Sort dataset by date
-us_df = us_df.sort_values(['Date', 'Region'])
 us_df = us_df[[
     'Date',
     'Days Since 2019-12-31',
@@ -180,6 +178,8 @@ us_df = us_df[[
     'Latitude', 
     'Longitude',
 ]]
+us_df = us_df.sort_values(['Date', 'Region'])
+
 
 
 
@@ -224,8 +224,15 @@ china_df['Days Since 2019-12-31'] = china_df['Date'] - basedate
 china_df['Days Since 2019-12-31'] = china_df['Days Since 2019-12-31'].fillna(0).astype(str)
 china_df['Days Since 2019-12-31'] = china_df['Days Since 2019-12-31'].str.extract('(\d+)').astype(int)
 
+# Replace nan values with 0
+value = 0
+china_df['Deaths'] = china_df['Deaths'].fillna(value)
+china_df['Confirmed'] = china_df['Confirmed'].fillna(value)
+
+# Remove the time from the Date column, keeping only the date
+china_df['Date'] = china_df['Date'].dt.date
+
 # Sort dataset by date + region
-china_df = china_df.sort_values(['Date', 'Region'])
 china_df = china_df[[
     'Date', 
     'Days Since 2019-12-31',
@@ -237,46 +244,46 @@ china_df = china_df[[
     'Latitude', 
     'Longitude'
 ]]
+china_df = china_df.sort_values(['Date', 'Region'])
 
-# Replace nan values with 0
-value = 0
-china_df['Deaths'] = china_df['Deaths'].fillna(value)
-china_df['Confirmed'] = china_df['Confirmed'].fillna(value)
 
-# Remove the time from the Date column, keeping only the date
-china_df['Date'] = china_df['Date'].dt.date
 
 
 
 ##### PART 5: #####
 
-# =============================================================================
-# '''Credit to https://github.com/open-covid-19 for scraping Spain data from MSCBS'''
-# 
-# # Download spain.csv from COVID-19 GitHub and clean data
-# url = 'https://raw.githubusercontent.com/open-covid-19/data/master/output/es.csv'
-# spain_df = pd.read_csv(url)
-# del spain_df['RegionCode']
-# 
-# # Add in a column for days since 12/31/2019
-# basedate = pd.to_datetime('2019-12-31')
-# spain_df['Date'] = pd.to_datetime(spain_df['Date'])
-# spain_df['Days Since 2019-12-31'] = spain_df['Date'] - basedate
-# spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].fillna(0).astype(str)
-# spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].str.extract('(\d+)').astype(int) 
-# 
-# # Remove the time from the Date column, keeping only the date
-# spain_df['Date'] = spain_df['Date'].dt.date
-# 
-# # Rename RegionName column to Region
-# spain_df.rename(columns={'RegionName': 'Region'}, inplace=True)
-# 
-# # Sort dataset by date
-# spain_df = spain_df.sort_values(['Date', 'CountryCode'])
-# spain_df = spain_df[['Date', 'Days Since 2019-12-31', 'CountryCode', 'CountryName', 'Region', 'Confirmed', 'Deaths', 'Latitude', 'Longitude']]
-# 
-# 
-# =============================================================================
+'''Credit to https://github.com/open-covid-19 for scraping Spain data from MSCBS'''
+
+# Download data.csv from COVID-19 GitHub and clean data
+url = 'https://raw.githubusercontent.com/open-covid-19/data/master/output/data.csv'
+spain_df = pd.read_csv(url)
+del spain_df['RegionCode']
+
+# Filter for only Spain
+spain_df = spain_df.loc[spain_df['CountryName'] == 'Spain']
+
+# Delete all rows that don't contain a region name
+spain_df['RegionName'] = spain_df['RegionName'].fillna('null')
+spain_df = spain_df.loc[spain_df['RegionName'] != 'null']
+
+# Add in a column for days since 12/31/2019
+basedate = pd.to_datetime('2019-12-31')
+spain_df['Date'] = pd.to_datetime(spain_df['Date'])
+spain_df['Days Since 2019-12-31'] = spain_df['Date'] - basedate
+spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].fillna(0).astype(str)
+spain_df['Days Since 2019-12-31'] = spain_df['Days Since 2019-12-31'].str.extract('(\d+)').astype(int) 
+
+# Remove the time from the Date column, keeping only the date
+spain_df['Date'] = spain_df['Date'].dt.date
+
+# Rename RegionName column to Region
+spain_df.rename(columns={'RegionName': 'Region'}, inplace=True)
+
+# Sort dataset by date
+spain_df = spain_df[['Date', 'Days Since 2019-12-31', 'CountryCode', 'CountryName', 'Region', 'Confirmed', 'Deaths', 'Latitude', 'Longitude']]
+spain_df = spain_df.sort_values(['Date', 'CountryCode'])
+
+
 
 ##### PART 6: #####
 '''
@@ -285,16 +292,13 @@ From the first time onwards, you do not need to re-save the complete_df to your 
 You will simply be adding the latest days data to the complete_df, then writing the updated version over the old one.
 '''
 
+# Combine all data into one dataframe 
 # =============================================================================
-# # Combine all data into one dataframe 
 # complete_df = pd.DataFrame
 # complete_df = pd.concat([us_df, china_df, world_df, spain_df], ignore_index=True)
 # 
 # # Sort dataset by date
 # complete_df = complete_df.sort_values(['Date', 'CountryCode'])
-# 
-# # Dropping duplicates
-# complete_df = complete_df.drop_duplicates(keep=False)
 # 
 # # Save complete dataset in CSV and JSON format into output folder
 # complete_df.to_csv('Output_Data/complete_df.csv', index=False)
@@ -302,32 +306,29 @@ You will simply be adding the latest days data to the complete_df, then writing 
 # =============================================================================
 
 
-
 ##### PART 7: #####
 
 # Adding new day's data to the complete dataframe
 
-# Extract a subset with only the most recent data from world_df
+# Extract a subset with only the most recent date from world_df
 world_df_latest = pd.DataFrame(columns=list(world_df.columns))
-for country in world_df['CountryCode'].unique():
-    world_df_latest = pd.concat([world_df_latest, world_df[world_df['CountryCode'] == country].iloc[-1:]])
+world_df_latest_date = world_df['Date'].max()
+world_df_latest = world_df.loc[world_df['Date'] == world_df_latest_date]
     
 # Extract a subset with only the latest date from us_df
 us_df_latest = pd.DataFrame(columns=list(us_df.columns))
-for country in us_df['Region'].unique():
-    us_df_latest = pd.concat([us_df_latest, us_df[us_df['Region'] == country].iloc[-1:]])
+us_df_latest_date = us_df['Date'].max()
+us_df_latest = us_df.loc[us_df['Date'] == us_df_latest_date]
     
 # Extract a subset with only the latest date from china_df
 china_df_latest = pd.DataFrame(columns=list(china_df.columns))
-for region in sorted(china_df['Region'].unique()):
-    china_df_latest = pd.concat([china_df_latest, china_df[china_df['Region'] == region].iloc[-1:]])
+china_df_latest_date = china_df['Date'].max()
+china_df_latest = china_df.loc[china_df['Date'] == china_df_latest_date]
     
-# =============================================================================
-# # Extract a subset with only the most recent data from spain_df
-# spain_df_latest = pd.DataFrame(columns=list(spain_df.columns))
-# for country in spain_df['Region'].unique():
-#     spain_df_latest = pd.concat([spain_df_latest, spain_df[spain_df['Region'] == country].iloc[-1:]])    
-# =============================================================================
+# Extract a subset with only the most recent data from spain_df
+spain_df_latest = pd.DataFrame(columns=list(spain_df.columns))
+spain_df_latest_date = spain_df['Date'].max()
+spain_df_latest = spain_df.loc[spain_df['Date'] == spain_df_latest_date]   
     
 # Import yesterday's data
 old_df = pd.read_csv('Output_Data/complete_df.csv')
@@ -337,12 +338,47 @@ old_df['Date'] = pd.to_datetime(old_df['Date'])
 old_df['Date'] = old_df['Date'].dt.date
 
 # Create updated dataframe
+new_df = pd.concat([old_df, us_df_latest, world_df_latest, spain_df_latest, china_df_latest,], ignore_index=True)
+new_df['Date'] = pd.to_datetime(new_df['Date'])
+new_df['Date'] = new_df['Date'].dt.date
 
-'''Add spain_df_latest if github back online'''
-new_df = pd.concat([old_df, us_df_latest, china_df_latest, world_df_latest], ignore_index=True)
+# Ensure all column types in new_df and old_df are of same type (for comparission)
+old_df['Date'] = old_df['Date'].astype(str)
+new_df['Date'] = new_df['Date'].astype(str)
+
+old_df['Days Since 2019-12-31'] = old_df['Days Since 2019-12-31'].astype(int)
+new_df['Days Since 2019-12-31'] = new_df['Days Since 2019-12-31'].astype(int)
+
+old_df['CountryCode'] = old_df['CountryCode'].astype(str)
+new_df['CountryCode'] = new_df['CountryCode'].astype(str)
+
+old_df['CountryName'] = old_df['CountryName'].astype(str)
+new_df['CountryName'] = new_df['CountryName'].astype(str)
+
+old_df['Region'] = old_df['Region'].astype(str)
+new_df['Region'] = new_df['Region'].astype(str)
+
+old_df['Confirmed'] = old_df['Confirmed'].astype(int)
+new_df['Confirmed'] = new_df['Confirmed'].astype(int)
+
+old_df['Deaths'] = old_df['Deaths'].astype(int)
+new_df['Deaths'] = new_df['Deaths'].astype(int)
+
+old_df['Latitude'] = old_df['Latitude'].astype(float)
+new_df['Latitude'] = new_df['Latitude'].astype(float)
+
+old_df['Longitude'] = old_df['Longitude'].astype(float)
+new_df['Longitude'] = new_df['Longitude'].astype(float)
+
+# Round all lats and lngs to 4 decimal places or Pandas won't be able to properly compare values
+old_df['Latitude'] = old_df['Latitude'].apply(lambda x: round(x, 4))
+new_df['Latitude'] = new_df['Latitude'].apply(lambda x: round(x, 4))
+old_df['Longitude'] = old_df['Longitude'].apply(lambda x: round(x, 4))
+new_df['Longitude'] = new_df['Longitude'].apply(lambda x: round(x, 4))
 
 # Delete duplicate rows
-new_df = new_df.drop_duplicates(subset = None, keep = False)
+new_df = new_df.drop_duplicates(subset = None, keep = 'first', inplace = False)
+
 # Sort dataframe by date
 new_df = new_df.sort_values(['Date', 'CountryCode'], inplace=False)
 

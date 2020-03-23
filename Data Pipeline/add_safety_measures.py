@@ -17,7 +17,17 @@ for item in populations_df["Population"]:
     populations_df["Population"][i] = temp
     i += 1
 populations_df["Population"] = populations_df["Population"].astype(int)
-        
+
+# Remove US, Spain, and China from complete_df and put them into separate dataframes
+complete_df_us = complete_df.loc[complete_df['CountryName'] == 'United States of America']
+complete_df = complete_df[complete_df.CountryName != 'United States of America']
+
+complete_df_spain = complete_df.loc[complete_df['CountryName'] == 'Spain']
+complete_df = complete_df[complete_df.CountryName != 'Spain']
+
+complete_df_china = complete_df.loc[complete_df['CountryName'] == 'China']
+complete_df = complete_df[complete_df.CountryName != 'China']
+      
 # Get list of unique country names from complete_df and populations_df
 unique_complete_df = complete_df['CountryName'].unique()
 unique_complete_df = unique_complete_df.tolist()
@@ -62,7 +72,7 @@ for item in us_missing:
     print(item)
 
 # Create temp population column for complete_df
-temp_us_df = pd.merge(complete_df, us_df, on=["CountryName", "Region"])
+temp_us_df = pd.merge(complete_df_us, us_df, on=["CountryName", "Region"])
 
 ############################################################################################################
 
@@ -94,7 +104,7 @@ for item in china_provinces_missing:
     print(item)
         
 # Create temp population column for complete_df
-temp_china_df = pd.merge(complete_df, china_df, on="Region")
+temp_china_df = pd.merge(complete_df_china, china_df, on="Region")
 
 ############################################################################################################
 
@@ -126,38 +136,53 @@ for item in spain_regions_missing:
     print(item)
         
 # Create temp population column for complete_df
-temp_spain_df = pd.merge(complete_df, spain_df, on="Region")
+temp_spain_df = pd.merge(complete_df_spain, spain_df, on="Region")
 
 
 # Combine all dataframes into one
 temp_final_df = pd.concat([temp_us_df, temp_china_df, temp_spain_df, temp_complete_df, ], ignore_index=True)
 
-# Delete duplicate rows
-temp_final_df = temp_final_df.drop_duplicates(subset = None, keep = False)
+# Ensure all values in columns are of same type (for comparission)
+temp_final_df['Date'] = temp_final_df['Date'].astype(str)
 
-# Sort dataframe by date
-temp_final_df = temp_final_df.sort_values(['Date', 'CountryCode'], inplace=False)
+temp_final_df['Days Since 2019-12-31'] = temp_final_df['Days Since 2019-12-31'].astype(int)
+
+temp_final_df['CountryCode'] = temp_final_df['CountryCode'].astype(str)
+
+temp_final_df['CountryName'] = temp_final_df['CountryName'].astype(str)
+
+temp_final_df['Region'] = temp_final_df['Region'].astype(str)
+
+temp_final_df['Confirmed'] = temp_final_df['Confirmed'].astype(int)
+
+temp_final_df['Deaths'] = temp_final_df['Deaths'].astype(int)
+
+temp_final_df['Latitude'] = temp_final_df['Latitude'].astype(float)
+
+temp_final_df['Longitude'] = temp_final_df['Longitude'].astype(float)
+
+# Round all lats and lngs to 4 decimal places or Pandas won't be able to properly compare values
+temp_final_df['Latitude'] = temp_final_df['Latitude'].apply(lambda x: round(x, 4))
+temp_final_df['Longitude'] = temp_final_df['Longitude'].apply(lambda x: round(x, 4))
+
+# Delete duplicate rows (shouldn't be any but here just for safety)
+temp_final_df = temp_final_df.drop_duplicates(subset = None, keep = 'first')
 
 # Add column for PercentConfirmed
 temp_final_df["PercentConfirmed"] = None
 
-'''Having weird issues with this line of code. Had to execute manually in excel and re-import'''
-# =============================================================================
-# for z in range(0, int(temp_final_df.shape[0])):
-#     percent_confirmed = (int(temp_final_df['Confirmed'][z]) / int(temp_final_df['Population'][z]))*100
-#     percent_confirmed = round(percent_confirmed, 4)
-#     temp_final_df.replace[z, 10] = percent_confirmed
-# 
-# =============================================================================
-
-# Work-around for above problem
-temp_final_df.to_csv("temp.csv", index = False)
-temp_final_df = pd.read_csv("temp.csv")
+for z in range(0, int(temp_final_df.shape[0])):
+    percent_confirmed = (temp_final_df['Confirmed'][z] / temp_final_df['Population'][z])*100
+    percent_confirmed = round(percent_confirmed, 4)
+    temp_final_df['PercentConfirmed'][z] = percent_confirmed
 
 # Add 1 or 0 to SafetyMeasures column if threshold above 0.002 %
 temp_final_df["SafetyMeasures"] = None
 temp_final_df.loc[temp_final_df.PercentConfirmed >= 0.002, 'SafetyMeasures'] = 1
 temp_final_df.loc[temp_final_df.PercentConfirmed < 0.002, 'SafetyMeasures'] = 0
+
+# Sort dataframe by date
+temp_final_df = temp_final_df.sort_values(['Date', 'CountryCode'], inplace=False)
 
 # Save to CSV and JSON
 temp_final_df.to_csv("Output_Data/complete_df_safety_measures.csv", index = False)
