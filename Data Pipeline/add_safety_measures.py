@@ -18,7 +18,7 @@ for item in populations_df["Population"]:
     i += 1
 populations_df["Population"] = populations_df["Population"].astype(int)
 
-# Remove US, Spain, and China from complete_df and put them into separate dataframes
+# Remove US, Spain, China, Italy, and Australia from complete_df and put them into separate dataframes
 complete_df_us = complete_df.loc[complete_df['CountryName'] == 'United States of America']
 complete_df = complete_df[complete_df.CountryName != 'United States of America']
 
@@ -27,6 +27,12 @@ complete_df = complete_df[complete_df.CountryName != 'Spain']
 
 complete_df_china = complete_df.loc[complete_df['CountryName'] == 'China']
 complete_df = complete_df[complete_df.CountryName != 'China']
+
+complete_df_italy = complete_df.loc[complete_df['CountryName'] == 'Italy']
+complete_df = complete_df[complete_df.CountryName != 'Italy']
+
+complete_df_australia = complete_df.loc[complete_df['CountryName'] == 'Australia']
+complete_df = complete_df[complete_df.CountryName != 'Australia']
       
 # Get list of unique country names from complete_df and populations_df
 unique_complete_df = complete_df['CountryName'].unique()
@@ -36,6 +42,7 @@ unique_populations_df = unique_populations_df.tolist()
 
 # Find country names that show up in complete_df but not populations_df. Manually add missing populations to populations_df
 world_missing = list(set(unique_complete_df) - set(unique_populations_df))
+print("Regions with missing populations in complete_df: ")
 for item in world_missing:
     print(item)
     
@@ -59,15 +66,15 @@ for item in us_df["Population"]:
     i += 1
 us_df["Population"] = us_df["Population"].astype(int)
         
-# Create list of all unique US state names that show up in complete_df and in us_df
-unique_us_states_complete_df = complete_df.loc[complete_df['CountryName'] == 'United States of America']
-unique_us_states_complete_df = unique_us_states_complete_df['Region'].unique()
-unique_us_states_complete_df = unique_us_states_complete_df.tolist()
-unique_states_us_df = us_df['Region'].unique()
-unique_states_us_df = unique_states_us_df.tolist()
+# Get list of unique names
+unique_complete_df_us = complete_df_us['Region'].unique()
+unique_complete_df_us = unique_complete_df_us.tolist()
+unique_populations_df_us = us_df['Region'].unique()
+unique_populations_df_us = unique_populations_df_us.tolist()
 
-# Find country names that show up in unique_us_states_complete_df but not unique_states_us_df. Manually add missing populations to us_df
-us_missing = list(set(unique_us_states_complete_df) - set(unique_states_us_df))
+# Find missing populations. Add manually
+us_missing = list(set(unique_complete_df_us) - set(unique_populations_df_us))
+print("Regions with missing populations in complete_df_us: ")
 for item in us_missing:
     print(item)
 
@@ -91,16 +98,16 @@ for item in china_df["Population"]:
     i += 1
 china_df["Population"] = china_df["Population"].astype(int)
 
-# Create list of all unique Chinese province names that show up in complete_df and in china_df
-unique_china_provinces_complete_df = complete_df.loc[complete_df['CountryName'] == 'China']
-unique_china_provinces_complete_df = unique_china_provinces_complete_df['Region'].unique()
-unique_china_provinces_complete_df = unique_china_provinces_complete_df.tolist()
-unique_provinces_china_df = china_df['Region'].unique()
-unique_provinces_china_df = unique_provinces_china_df.tolist()
+# Get list of unique names
+unique_complete_df_china = complete_df_china['Region'].unique()
+unique_complete_df_china = unique_complete_df_china.tolist()
+unique_populations_df_china = china_df['Region'].unique()
+unique_populations_df_china = unique_populations_df_china.tolist()
 
-# Find country names that show up in unique_china_provinces_complete_df but not unique_provinces_china_df. Manually add missing populations to us_df
-china_provinces_missing = list(set(unique_china_provinces_complete_df) - set(unique_provinces_china_df))
-for item in china_provinces_missing:
+# Find missing populations. Add manually
+china_missing = list(set(unique_complete_df_china) - set(unique_populations_df_china))
+print("Regions with missing populations in complete_df_china: ")
+for item in china_missing:
     print(item)
         
 # Create temp population column for complete_df
@@ -123,24 +130,89 @@ for item in spain_df["Population"]:
     i += 1
 spain_df["Population"] = spain_df["Population"].astype(int)
 
-# Create list of all unique Spanish region names that show up in complete_df and in spain_df
-unique_spain_regions_complete_df = complete_df.loc[complete_df['CountryName'] == 'Spain']
-unique_spain_regions_complete_df =unique_spain_regions_complete_df['Region'].unique()
-unique_spain_regions_complete_df = unique_spain_regions_complete_df.tolist()
-unique_regions_spain_df = spain_df['Region'].unique()
-unique_regions_spain_df = unique_regions_spain_df.tolist()
+# Get list of unique names
+unique_complete_df_spain = complete_df_spain['Region'].unique()
+unique_complete_df_spain = unique_complete_df_spain.tolist()
+unique_populations_df_spain = spain_df['Region'].unique()
+unique_populations_df_spain = unique_populations_df_spain.tolist()
 
-# Find country names that show up in unique_spain_regions_complete_df but not unique_regions_spain_df. Manually add missing populations to us_df
-spain_regions_missing = list(set(unique_spain_regions_complete_df) - set(unique_regions_spain_df))
-for item in spain_regions_missing:
+# Find missing populations. Add manually
+spain_missing = list(set(unique_complete_df_spain) - set(unique_populations_df_spain))
+print("Regions with missing populations in complete_df_spain: ")
+for item in spain_missing:
     print(item)
         
 # Create temp population column for complete_df
 temp_spain_df = pd.merge(complete_df_spain, spain_df, on="Region")
 
+############################################################################################################
+
+# Add population of Italy regions
+italy_df = pd.read_csv("Helper_Data/metadata_it.csv")
+
+# Ensure columns are of type str and int
+italy_df["Region"] = italy_df["Region"].astype(str)
+i = 0
+for item in italy_df["Population"]:
+    temp = ''
+    for c in str(item):
+        if c != ',':
+            temp += c
+    italy_df["Population"][i] = temp
+    i += 1
+italy_df["Population"] = italy_df["Population"].astype(int)
+
+# Get list of unique names
+unique_complete_df_italy = complete_df_italy['Region'].unique()
+unique_complete_df_italy = unique_complete_df_italy.tolist()
+unique_populations_df_italy = italy_df['Region'].unique()
+unique_populations_df_italy = unique_populations_df_italy.tolist()
+
+# Find missing populations. Add manually
+italy_missing = list(set(unique_complete_df_italy) - set(unique_populations_df_italy))
+print("Regions with missing populations in complete_df_italy: ")
+for item in italy_missing:
+    print(item)
+        
+# Create temp population column for complete_df
+temp_italy_df = pd.merge(complete_df_italy, italy_df, on="Region")
+
+############################################################################################################
+
+# Add population of Australia regions
+australia_df = pd.read_csv("Helper_Data/metadata_au.csv")
+
+# Ensure columns are of type str and int
+australia_df["Region"] = australia_df["Region"].astype(str)
+i = 0
+for item in australia_df["Population"]:
+    temp = ''
+    for c in str(item):
+        if c != ',':
+            temp += c
+    australia_df["Population"][i] = temp
+    i += 1
+australia_df["Population"] = australia_df["Population"].astype(int)
+
+# Get list of unique names
+unique_complete_df_australia = complete_df_australia['Region'].unique()
+unique_complete_df_australia = unique_complete_df_australia.tolist()
+unique_populations_df_australia = australia_df['Region'].unique()
+unique_populations_df_australia = unique_populations_df_australia.tolist()
+
+# Find missing populations. Add manually
+australia_missing = list(set(unique_complete_df_australia) - set(unique_populations_df_australia))
+print("Regions with missing populations in complete_df_australia: ")
+for item in australia_missing:
+    print(item)
+        
+# Create temp population column for complete_df
+temp_australia_df = pd.merge(complete_df_australia, australia_df, on="Region")
+
+############################################################################################################
 
 # Combine all dataframes into one
-temp_final_df = pd.concat([temp_us_df, temp_china_df, temp_spain_df, temp_complete_df, ], ignore_index=True)
+temp_final_df = pd.concat([temp_complete_df, temp_us_df, temp_china_df, temp_spain_df, temp_italy_df, temp_australia_df], ignore_index=True)
 
 # Ensure all values in columns are of same type (for comparission)
 temp_final_df['Date'] = temp_final_df['Date'].astype(str)
